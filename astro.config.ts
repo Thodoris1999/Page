@@ -4,6 +4,8 @@ import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
 import prefetch from "@astrojs/prefetch";
 import remarkUnwrapImages from "remark-unwrap-images";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { remarkReadingTime } from "./src/utils/remark-reading-time.mjs";
 
 // https://astro.build/config
@@ -11,7 +13,8 @@ export default defineConfig({
 	// ! Please remember to replace the following site property with your own domain
 	site: "https://astro-theme-cactus.netlify.app/",
 	markdown: {
-		remarkPlugins: [remarkUnwrapImages, remarkReadingTime],
+		remarkPlugins: [remarkUnwrapImages, remarkReadingTime, remarkMath],
+		rehypePlugins: [rehypeKatex],
 		remarkRehype: { footnoteLabelProperties: { className: [""] } },
 		shikiConfig: {
 			theme: "dracula",

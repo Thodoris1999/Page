@@ -1,0 +1,109 @@
+---
+title: "Uncrustified backpropagation"
+publishDate: "4 September 2023"
+description: "Yet another backpropagation explanation, with decluttered notation"
+tags: ["Neural Nets", "Backpropagation", "Autodifferentiation", "blog"]
+---
+
+import Latex from "../../components/Latex.astro";
+
+I recently need to remind myself on the specifics of backpropagation, while I was inestingating neural network training optimization on modern hardware.
+I can say that I already has a conceptual understanding of backpropagation (compute the derivate if of a funcion w.r.t. to some weights efficiently) and
+had followed all the algorithm's steps in detail a few years back. What I wanted was a quick refresher of the steps and operations,
+so I can figure out how it can efficiently be implemented in software. So for that reason, I went to my go to default source of information: Wikipedia.
+Scrolling down to the matrix formulation, I come across the following two expressions (I will be following wikipedia's notation throughout this post)
+
+<Latex formula="\delta^l = (f^l)' \circ (W^{l+1})^T \cdot (f^{l+1})' \circ \cdots \circ (W^{L-1})^T \cdot (f^{L-1})' \circ (W^{L})^T \cdot (f^{L})' \circ \nabla_{a^L} C" />
+<Latex formula="\nabla_{W^l} C = \delta^l(\alpha^{l-1})^T" />
+
+There are a couple of things here that obfuscate how simple backpropagation really is.
+
+1. [Newton](https://books.physics.oregonstate.edu/GSF/leibniz.html)'s notation makes it hard to see with respect to what the derivatives are taken in each expression
+2. The function composition symbol $\circ$ is used between functions and weight parameters. Does that mean that the function is composed with a multiplication
+   or with the next function after it is multiplied by that matrix? Are those two cases even equivalent? It's not so clear how this expression is evaluated for a
+   given input...
+3. The layer is always assumed to consist of two steps, matrix multiplication with some weights + some activation. Not only this is ofter not exactly
+   the case (see attention and convolution layers for a ubiquitous example), but it doubles the complexity of our expressions, since there is twice the
+   product terms per layer.
+
+For those reasons, I decided to blog my own formulation of backpropagation,
+which hopefully is simple notationally and only keeps what's important, making it easy to follow.
+
+Let $\alpha^l$ be the output of layer $l$ and let $f^l$ be function used to calculate $\alpha^l$ given inputs $\alpha^{l-1}$ and $W^l$ (sequential network).
+For each layer $l$ from $1$ to $L$:
+
+$$
+\alpha^l = f^l(\alpha^{l-1}, W^l), \,\,\,\, X \equiv a^0
+$$
+
+The semantic difference between the inputs is that $\alpha^l$ is the output of another layer (dependent variable w.r.t. the input $X$) and $W_l$ is a trainable model parameter (independent of the input).
+
+Following the last layer is a cost function that gives us the scalar loss value to be minimized
+
+$$
+\mathcal{L} = C(Y, \alpha^L) = net(Y,X,W)
+$$
+
+We can find the gradient of the weights of each layer by following the chain rule for the loss function
+
+$$
+\nabla_{W^l} \mathcal{L} = \frac{\partial C}{\partial \alpha^l} \frac{\partial \alpha^l}{\partial W^l} = \frac{\partial C}{\partial \alpha^L} \frac{\partial \alpha^L}{\partial \alpha^{L-1}} \cdots \frac{\partial \alpha^{l+1}}{\partial \alpha^{l}} \frac{\partial \alpha^l}{\partial W^l}
+$$
+
+Each term is of course a function, which constitues the whole thing a function, which makes not so clear how we evaluate the expression given an input-label pair.
+It is one downside of the Leibniz notation, that it is not apparent on what variables the function is evaluated on. We can be more explicit with some more cumbersome notation
+
+$$
+\nabla_{W^l} \mathcal{L} =
+\frac{\partial C}{\partial \alpha^l} \Bigr|_{\substack{a_l=\pmb{a_l}}} \frac{\partial \alpha^l}{\partial W^l} \Bigr|_{\substack{a_{l-1}=\pmb{a_{l-1}}}} =
+\frac{\partial C}{\partial \alpha^L} \Bigr|_{\substack{a_{L-1}=\pmb{a_{L-1}}}} \frac{\partial \alpha^L}{\partial \alpha^{L-1}} \Bigr|_{\substack{a_{L-2}=\pmb{a_{L-2}}}} \cdots
+\frac{\partial \alpha^{l+1}}{\partial \alpha^{l}} \Bigr|_{\substack{a_{l}=\pmb{a_{l}}}} \frac{\partial \alpha^l}{\partial W^l} \Bigr|_{\substack{a_{l-1}=\pmb{a_{l-1}}}}
+$$
+
+There are a lot of symbols, but here I'm using normal font for variables and _bold_ for values computed in the forward pass. What this whole expression is meant to
+say is:
+
+1. Compute the forward pass as normal, saving the output results of each layer $a^l$
+2. Iterate the layers backwards and compute the gradient of each layer, using the values from the forward pass.
+3. The "gradient of each layer" $\frac{\partial C}{\partial \alpha^l}$ is the product of all layer gradients up to the cost function
+4. The gradient of the layer's weights is the layer gradient multiplied by the extra gradient term of the layer outpt w.r.t. the weights $\frac{\partial \alpha^l}{\partial W^l}$
+
+We can condense the gradient expression with a simple recursive formula, which is the most common representation of the backpropagation algorithm
+
+$$
+\delta^L = \frac{\partial C}{\partial \alpha^L}
+$$
+
+$$
+\delta^{l} = \delta^{l+1} \frac{\partial \alpha^{l+1}}{\partial \alpha^{l}}
+$$
+
+$$
+\nabla_{W^l} \mathcal{L} = \delta^{l} \frac{\partial \alpha^l}{\partial W^l}
+$$
+
+To bring the analogy closer to practical DL framework implementations, the $\frac{\partial \alpha^{l+1}}{\partial \alpha^{l}}$ and $\frac{\partial \alpha^l}{\partial W^l}$ terms are the two things a DL framework needs to know to implement a layer, along with its forward pass $f^l(a^{l-1}, W^l)$. We typically don't need to define those two explicity, since most of the time the forward pass is composed by forward passes of simpler operations, which the framework already knows how to compute the derivative of.
+
+## Extending backpropagation to graphs
+
+So far we've seen the simple, linear case of backpropagation, which is the version explained in most DL textbooks. However the vast majority of neural nets nowdays do not follow that case. They have skip layers, layers with multiple inputs, layers whose output is used as the input of multiple layers and all sorts of weirdness. The layout these modern neural nets follows is typically described as a network _graph_. More specifically, they are directed acyclic graphs (DAGs) which can have any number of input and output edges. In fact, since the network leads up to a single output, the loss, you can call them **network trees**! Way less marketable...
+
+To cover the case of graphs, we will extend our notation a little bit. Each layer $i$ is going to have a set of output layers $O^i$ and a set of input layers $I^i$. As the name suggests, $O^i$ will contain the layers which use $\alpha^l$ and $I^i$ will contain the layer outputs that are inputs to layer $i$. Keeping total derivatives in mind, we can modify the previous equations as follows
+
+$$
+\delta^L = \frac{\partial C}{\partial \alpha^L}
+$$
+
+$$
+\delta^{l} = \sum_{i \in O^l} \delta^{i} \frac{\partial \alpha^{i}}{\partial \alpha^{l}}
+$$
+
+$$
+\nabla_{W^l} \mathcal{L} = \delta^{l} \frac{\partial \alpha^l}{\partial W^l}
+$$
+
+and yes, the only difference is in the definition of $\delta^l$! Now we can iterate the graph (tree) in any way such that the parent gradients are evaluated before
+their children's and we are all set!
+
+Hopefully this little explanation was helpful, and if it was please let me know. If you want to get an even deeper insight into backpropagation, I suggest
+looking up _autodifferentiation_ and specifically _reverse accumulation_.
