@@ -1,7 +1,7 @@
 {
-	"name": "Astro Theme Cactus Demo",
-	"short_name": "Astro_Cactus",
-	"description": "Starter blog site for Astro",
+	"name": "Theodoros Tyrovozis' personal page",
+	"short_name": "teo_blog",
+	"description": "Theodoros Tyrovozis' personal blog",
 	"icons": [
 		{
 			"src": "/192x192.png",

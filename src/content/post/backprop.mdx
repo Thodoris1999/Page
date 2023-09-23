@@ -102,8 +102,8 @@ $$
 \nabla_{W^l} \mathcal{L} = \delta^{l} \frac{\partial \alpha^l}{\partial W^l}
 $$
 
-and yes, the only difference is in the definition of $\delta^l$! Now we can iterate the graph (tree) in any way such that the parent gradients are evaluated before
-their children's and we are all set!
+and yes, the only difference is in the definition of $\delta^l$! Now we can iterate the graph (tree) in any way such that the parent layer gradients are evaluated
+before their children's, and we are all set!
 
 Hopefully this little explanation was helpful, and if it was please let me know. If you want to get an even deeper insight into backpropagation, I suggest
 looking up _autodifferentiation_ and specifically _reverse accumulation_.
