@@ -1,0 +1,26 @@
+---
+title: "LLM tools for coding"
+publishDate: "4 July 2026"
+description: "How I use LLMs for code" 
+tags: ["LLM", "Coding", "blog"]
+--- 
+
+I have been using the assistance of LLMs while coding recently, and after getting used to them, it has been a while since I had that significant of a change in my workflow. Since I am I in this nice state where I have been using them for a while and am comfortable with them, but developing software without using them at all is still well in my recent memory, I thought is would be a good time to write down my thoughts. So this is perhaps something more like a personal diary entry rather than something interesting to anyone else.
+
+As of writing, I am using the 20$ subscription of Claude code with Sonnet 5. I am coding every day almost, but have not come close to using up all my credits.
+
+Before around 2 months ago, I hardly used any LLMs for coding. I would from time to time go to chatgpt's website and ask for code that I would consider boilerplate and easy enough that I could expect to get something that works, mainly for stuff I am not too concerned about in terms of quality, for example for code that I wouldn't really expand upon. But up quite recently the LLM code output would be so bad that I would waste more time trying to fix it, so I didn't pay too much attention. The projects I was working on were also complicated (C++ graphics engine, reverse engineering, embedded software) and large scale, so perhaps the models were not mature yet.
+
+Around 2 months ago I wanted to make an application for multi-camera calibration for motion capture and a friendly UI for it (that will be another post). Since I am starting from scratch and there is nothing to screw up, wanted to try using one of the CLI assistance and heard good things from a coworker about claude. Before getting to write the code for a large new personal project, I am in the habit of first writing a rough spec on a google document specifying the data structures, algorithms, interfaces and user flows. So I also had a nice writeup to feed into the LLM already.
+
+The one shot code generation was okay. It made quite a few mistakes but it also got a lot of stuff acceptably that would have taken me ages to manually type them and test them myself. The most important part is that I was able to iron out the rest with the assistance of the LLM. It worked well in finding bugs after pointing them out in code, or often by describing the symptoms. But eventually the generation quality and most importantly the cooperability improvements in clankers have made them so that, at least in my perception, it is more productive to outsource most of the code writup to the LLM (after steering it with human language) than write all of it myself.
+
+It is really good at not doing those very stupid typos when writing code like I do sometimes. Things like using the wrong index in a nested loop that can shave off 1 hour of your life. Writing large amounts of simple code is prone to trivial errors, but Sonnet 5 does not seem to make them so far. Any complains I had so far were issues at higher levels of development
+
+At this point in time I cannot recommend the automatic yes option for the code change suggestions. I could not do this in my motion capture project and the proof for this is that I am very familiar with the codebase and can work on it independently (I consider an ideal vibe coding scenario one which you say what you want and then put a blindfold until your black box of functionality is baked for you). In practice I have to constantly request changes, mostly small improvements, but I believe those small inaccuracies snowball into unmaintainable disfunctional bullshit if left unchecked.
+
+You can also expect it to aggressively get lazy and cut cornerns in any part of the spec that was unspecified (which is what a developer should do). I didn't say anything specific about the UI, mainly because I am not sure if the image modality works well or I should try somehow do the spec in text, and it turned out complete ass. I hadn't decided on the exact external calibration workflow. I would expect it to come up with some type of graph optimization or at least get a minimum spanning tree connecting all the cameras with poses from frames where a fiducial was commonly visible, but instead it just takes a picture and expects a chessboard to be visible by every camera. So maybe more specialized domain knowledge is lacking at the moment, at least without expllicitly prompting to do so.
+
+Despite the limitations, I use it almost always when coding. The other day there was a claude outage and I actually felt a significant pushback. I wrote the code I wanted myself, but I had this sense of insecurity, in that there could be a naive bug somewhere on those 150 lines. It's not like I trust the LLM's code writing more than mine, but writing together with it has somewhat the effect that 2 pairs of eyes saw the code instead of just mine.
+
+Overall pretty satisfied
