@@ -9,10 +9,11 @@
 		"check": "astro check",
 		"build": "astro build",
 		"postbuild": "pagefind --site dist",
-		"preview": "astro preview",
+		"preview": "npm run build && wrangler dev",
 		"format": "prettier -w --cache .",
 		"lint": "eslint .",
-		"format:check": "prettier --check ."
+		"format:check": "prettier --check .",
+		"deploy": "npm run build && wrangler deploy"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.12",
@@ -39,7 +40,8 @@
 		"reading-time": "^1.5.0",
 		"tailwindcss": "^4.3.5",
 		"typescript": "~6.0",
-		"typescript-eslint": "^8.72.2"
+		"typescript-eslint": "^8.72.2",
+		"wrangler": "^4.160.0"
 	},
 	"dependencies": {
 		"@astrojs/markdown-remark": "^7.3.7",

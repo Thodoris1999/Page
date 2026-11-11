@@ -1,0 +1,17 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tyrovouzis-dev",
+	"compatibility_date": "2026-11-01",
+	// Static-only Worker: serves the Astro build output, no script needed
+	"assets": {
+		"directory": "./dist",
+		// Serve dist/404.html with a 404 status for unknown paths
+		"not_found_handling": "404-page",
+		// /posts/foo -> posts/foo/index.html
+		"html_handling": "auto-trailing-slash",
+	},
+	"routes": [
+		{ "pattern": "tyrovouzis.dev", "custom_domain": true },
+		{ "pattern": "www.tyrovouzis.dev", "custom_domain": true },
+	],
+}
