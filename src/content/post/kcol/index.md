@@ -1,6 +1,6 @@
 ---
 title: "A look inside Nintendo's internal collision library"
-publishDate: "23 March 2024"
+publishDate: 2024-03-23
 description: "How games are able to detect collision between thousands of objects in real time"
 tags: ["Nintendo", "Game Engine", "Reverse Engineering", "Collision", "blog"]
 ---

@@ -14,15 +14,15 @@ const {
 	<a
 		class={`block line-clamp-2 hover:text-accent ${depth <= 2 ? "mt-3" : "mt-2 text-[0.6875rem]"}`}
 		href={`#${slug}`}
-		aria-label={`Scroll to section: ${text}`}><span class="me-0.5">#</span>{text}</a
+		aria-label={`Scroll to section: ${text}`}
 	>
-	{
-		!!subheadings.length && (
-			<ul>
-				{subheadings.map((subheading) => (
-					<Astro.self heading={subheading} />
-				))}
-			</ul>
-		)
-	}
+		<span class="before:me-0.5 before:content-['#']">{text}</span>
+	</a>
+	{!!subheadings.length && (
+		<ul>
+			{subheadings.map((subheading) => (
+				<Astro.self heading={subheading} />
+			))}
+		</ul>
+	)}
 </li>

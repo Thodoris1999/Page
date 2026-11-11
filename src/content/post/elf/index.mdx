@@ -1,13 +1,14 @@
 ---
 title: "Linux binaries: the bigger picture"
-publishDate: "4 September 2023"
+publishDate: 2023-09-04
 description: "Rediscovering the ELF binary format through the lens of programming and processors"
-tags: ["Executable and Linkable format", "Binary excecutable", "Reverse Engineering", "blog"]
+tags: ["Executable and Linkable format", "Binary executable", "Reverse Engineering", "blog"]
 ---
 
 If you ask a population of programmers what the linker is, probably less than 50% will be able to tell you. And if you dare to question what it does, in reality I believe less than 5% knows precisely. Even though compilers are the center of attention in computer science, we use linkers just as much and they involve some interesting engineering. Executables and libraries are all carefully crafted products of the linker. Why can't I run a static library? And why can't I just use code from an executable as a library? What is discussed in this blog post is not usually something the programmer interacts with, but in this deeper dive to linkers and binary files we can obtain an understanding of what the linker does and it will answer a lot of the familiar behavior of typical binaries we programmers encounter daily.
 
 ## The processor's perspective
+
 First, let's put ourselves in the shoes of a modern microprocessor. Processors, are a finite implementation of a the theoretic concept that inspired them,
 the turing machine. That roughly makes them a machine that
 reads symbols (instructions) from a tape (memory) and according those instructions and its internal state (registers), performs some changes in that memory.
@@ -16,6 +17,7 @@ The instructions are given in some place (address [[2]](#notes)) in the computer
 contents of any address. One of the processor's registers, the program counter is responsible for containing the address of the instruction that will be executed next.
 
 Here is an example of a typical function in a amd64 processor program (it doesn't matter what it does for this blog post).
+
 ```asm
 /*39:   55*/                      push   %rbp
 /*3a:   48 89 e5*/                mov    %rsp,%rbp
@@ -35,6 +37,7 @@ Here is an example of a typical function in a amd64 processor program (it doesn'
 /*64:   c9*/                      leave
 /*65:   c3*/                      ret
 ```
+
 In the comments to the left I am showing the address of the instruction in memory and at the hex values of the instruction itself. To the right I'm using a roughly 1-1
 textual representation of the instructions (assembly) so that the program is human readable.
 In order to execute that program, we can set the processor's program counter to the program's start and let it do its thing.
@@ -43,6 +46,7 @@ Potentially, it can "jump" its program counter to some other address and continu
 as do the instructions `jne`, `call` or `jmp`.
 
 All that is to say that processors generally speaking do some of the following things, according to their instructions:
+
 1. Read a value from memory onto some of its registers
 2. Perform some operation that modifies the register contents [[3]](#notes)
 3. Store register contents into memory
@@ -57,6 +61,7 @@ as well as metadata such as its size, load address and permissions would be enou
 Now let's see things from a different perspective.
 
 ## The programer's perspective
+
 Humans build things. They create physics simulators, graphics engines, websites, robots and neural networks.
 We modularise logic into reusable pieces, share and distribute them. When creating games, we want to use a plethora of software components
 including a physics engine, a 2D and 3D graphics library, a realtime 3D sound library and perhaps networking. All of these components require months of
@@ -71,7 +76,7 @@ We can start imagining how we would share and reuse the previous code in the for
 we came up with earlier, but we immediately run into problems. In order to call that function, we would need to know its corresponding address.
 Okay, this is already cumbersome but not infeasible. Even worse though, our final binary would have to have multiple code and data sections, one set for each
 compiled library and we would have to somehow ensure that the addresses of each function does not clash, which is unmanageable in practise.
-What we would really want, is to be able to *relocate* all functions and data together into a new, unified address space.
+What we would really want, is to be able to _relocate_ all functions and data together into a new, unified address space.
 
 At first you might think this is simple. You just adjust each program references to the target's new location and it should work. For example,
 in the previous code sample, if the `call` target moves from address `0x24` to `0x44`, you add `0x20` to the `call`'s argument
@@ -84,10 +89,11 @@ it to another function. For all we know, the code could have been just manipulat
 **For compiled binaries, it is impossible to tell which number is a program reference or a literal value in the general case**.
 Obviously, programmers know that we aren't dealing with any of these problems today, we just call whatever library function we want by name,
 every reference gets shifted correctly and everthing just works, abstracted away from us by the compiler (more accurately by the linker it calls).
-In other words, we want to make our binary format *relocatable*, and the way binary libraries achieve this is with two key pieces of information:
+In other words, we want to make our binary format _relocatable_, and the way binary libraries achieve this is with two key pieces of information:
 the symbol table and the relocation table.
 
 ## Shaping a relocatable format
+
 First, we should supplement our binary format with information about the names of each symbol so we can call/reference each symbol by name and not address.
 In ELF terms, a section called `.symtab` is added, which among other things contains the position of each symbol in our binary and an offset to its null-terminated
 name in another section called the "symbol string table". With this simple addition we can call functions from a library by name as we are used to, but our
@@ -95,7 +101,8 @@ binary is still not relocatable.
 
 Since it's not possible to determine what values are program references or not, the compiler has to step in and add a section with that information.
 In the ELF format, this is taken care of by the relocation section(s) (usually `.rel` or `.rela`). When generating a relocatable binary, for each reference the compiler runs into,
-it adds a *relocation entry* to a relocation section that contains 
+it adds a _relocation entry_ to a relocation section that contains
+
 1. the symbol that is referenced
 2. the location of the reference
 3. the exact guidelines on how to patch the code at that location if eventually the symbol address is known
@@ -103,13 +110,14 @@ it adds a *relocation entry* to a relocation section that contains
 We can finally arrive at an accurate definition on what a linker is:
 
 > A linker is a program that converts a relocatable (or linkable) file into an executable file. It does two things, resolve symbol references by symbol name
-and performs all patches according to the relocation section(s).
+> and performs all patches according to the relocation section(s).
 
 In reality the compiler always outputs a relocatable file and then the linker is responsible for "packaging" it into an executable or library.
 
 ## The ELF file format and the different binary types
+
 We now have two competing concepts of a binary, a linkable format that is able to be relocated and an excecutable format that we can run.
-The former can be used as a *library*, which is piece of code that can be reused in any executable program that wants it.
+The former can be used as a _library_, which is piece of code that can be reused in any executable program that wants it.
 
 The ELF binary format defines 4 standardized object file types. One of them is `ET_CORE` core files, which are just wrappers
 of memory dumps of processes useful for debugging.
@@ -118,7 +126,7 @@ The rest of the types are the ones that programmers interact daily and are manip
 ![image](./elf_type_venn.png)
 
 1. Relocatable files (`ET_REL`). These give ELF the linkable part of its name. As the name describes, these file are analogous to binaries we described in the previous section, and are able to be shifted around. They don't necessarily have enough information to run them as is, as it is usually not defined how these files are supposed
-to be placed in an address space and their cross references are not yet tied up. They are perfect for *static libraries*, which on linux is basically an archive of a bunch of these files.
+   to be placed in an address space and their cross references are not yet tied up. They are perfect for _static libraries_, which on linux is basically an archive of a bunch of these files.
 2. Executable files (`ET_EXEC`). These are at the opposite spectrum of relocatable files. They have hardcoded addresses as references and are ready to be put in an address space and eaten by the processor.
 3. Shared object files (`ET_DYN`). They can sort of play both roles. They are relocatable meaning that their references can be shifted, but they also define information that allows them to be linked at runtime to create a process image. I should maybe follow up with a separate blog post for dynamic or runtime linking, but I'll skip it for now for simplicity. It doesn't interfere from understanding anything explained here.
 
@@ -132,14 +140,16 @@ We can now map our familiar binary formats to what they represent in ELF terms.
 And with that we have derived the familiar landscape of binaries in linux!
 
 ## Afterword
+
 Hopefully this blog post made you appreciate the engineering of binary formats and linking a little bit more. I hope it also gave you the bigger picture that will help you read any ELF, ABI, linker or low level manuals you read in the future. Thank you for reading!!
 
 ## Notes
+
 [1] The notion of relocatability used thoughout this post is akin to position-independence used in different contexts.
 
 [2] In reality, using a common address space in real computers is very impractical. Programs intended to be running at the same time as other processes
 would need to be aware of all regions that are in potential use by every other process so they do not mistakenly interfere with them.
-In reality, processors incorporate an extra abstraction called *address translation*, which translates *virtual addresses* referenced by the program, into some physical address that the operated system chose carefully to avoid any interference. With that convenient abstraction, programs can be all compiled to the same virtual address space with no real overlap.
+In reality, processors incorporate an extra abstraction called _address translation_, which translates _virtual addresses_ referenced by the program, into some physical address that the operated system chose carefully to avoid any interference. With that convenient abstraction, programs can be all compiled to the same virtual address space with no real overlap.
 
 [3] Steps 1 and 2 are often combined into one in load-memory architectures (e.g. amd64), while they are always distinct steps in load-store architectures (e.g. ARM)
 

@@ -5,7 +5,7 @@ import { getCollection } from "astro:content";
 import PageLayout from "@/layouts/Base";
 import PostPreview from "@/components/blog/PostPreview";
 import Pagination from "@/components/Paginator";
-import { getUniqueTags, sortMDByDate } from "@/utils";
+import { getTagSlug, getUniqueTags, sortMDByDate } from "@/utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allPosts = await getCollection("post");
@@ -13,9 +13,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 	const uniqueTags = getUniqueTags(allPostsByDate);
 
 	return uniqueTags.flatMap((tag) => {
-		const filterPosts = allPostsByDate.filter((post) => post.data.tags?.includes(tag));
+		const filterPosts = allPostsByDate.filter((post) => post.data.tags.includes(tag));
 		return paginate(filterPosts, {
-			params: { tag },
+			params: { tag: getTagSlug(tag) },
+			props: { tag },
 			pageSize: 10,
 		});
 	});
@@ -23,10 +24,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 
 interface Props {
 	page: Page<CollectionEntry<"post">>;
+	tag: string;
 }
 
-const { page } = Astro.props;
-const { tag } = Astro.params;
+const { page, tag } = Astro.props;
 
 const meta = {
 	title: `Tag: ${tag}`,
@@ -51,19 +52,19 @@ const paginationProps = {
 
 <PageLayout meta={meta}>
 	<h1 class="title mb-6 flex items-center">
-		<a href="/tags/" class="text-accent sm:hover:underline">Tags</a>
+		<a href="/tags/" class="text-accent sm:hover:underline">
+			Tags
+		</a>
 		<span class="me-3 ms-2">→</span>
 		<span class="text-xl">#{tag}</span>
 	</h1>
 	<section aria-label="Blog post list">
 		<ul class="space-y-8">
-			{
-				page.data.map((p) => (
-					<li class="flex flex-col flex-wrap gap-2 sm:flex-row [&_q]:basis-full">
-						<PostPreview post={p} as="h2" withDesc />
-					</li>
-				))
-			}
+			{page.data.map((p) => (
+				<li class="flex flex-col flex-wrap gap-2 sm:flex-row [&_q]:basis-full">
+					<PostPreview post={p} as="h2" withDesc />
+				</li>
+			))}
 		</ul>
 		<Pagination {...paginationProps} />
 	</section>

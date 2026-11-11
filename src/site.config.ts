@@ -18,6 +18,8 @@ export const siteConfig: SiteConfig = {
 			day: "numeric",
 			month: "short",
 			year: "numeric",
+			// Post dates are UTC midnight; format in UTC so the day doesn't shift with the build machine's timezone
+			timeZone: "UTC",
 		},
 	},
 };
@@ -28,10 +30,6 @@ export const menuLinks: Array<{ title: string; path: string }> = [
 		title: "Home",
 		path: "/",
 	},
-	/*{
-		title: "About",
-		path: "/about/",
-	},*/
 	{
 		title: "Blog",
 		path: "/posts/",

@@ -1,7 +1,7 @@
 {
-	"name": "Theodoros Tyrovozis' personal page",
+	"name": "Theodoros Tyrovouzis' personal page",
 	"short_name": "teo_blog",
-	"description": "Theodoros Tyrovozis' personal blog",
+	"description": "Theodoros Tyrovouzis' personal blog",
 	"icons": [
 		{
 			"src": "/192x192.png",
@@ -16,6 +16,6 @@
 	],
 	"start_url": "/",
 	"background_color": "#1d1f21",
-	"theme_color": "#2bbc8a",
+	"theme_color": "#2bbc89",
 	"display": "standalone"
 }

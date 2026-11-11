@@ -35,30 +35,34 @@ import "@pagefind/default-ui/css/ui.css";
 			<button
 				data-close-modal
 				class="ms-auto cursor-pointer rounded-md bg-zinc-200 p-2 font-semibold dark:bg-zinc-700"
-				>Close</button
 			>
-			{
-				import.meta.env.DEV ? (
-					<div class="mx-auto text-center">
-						<p>
-							Search is only available in production builds. <br />
-							Try building and previewing the site to test it out locally.
-						</p>
-					</div>
-				) : (
-					<div class="search-container">
-						<div id="cactus__search" />
-					</div>
-				)
-			}
+				Close
+			</button>
+			{import.meta.env.DEV ? (
+				<div class="mx-auto text-center">
+					<p>
+						Search is only available in production builds. <br />
+						Try building and previewing the site to test it out locally.
+					</p>
+				</div>
+			) : (
+				<div class="search-container">
+					<div id="cactus__search" />
+				</div>
+			)}
 		</div>
 	</dialog>
 </site-search>
 
 <script>
+	// The header (and this element) is replaced on every client-side navigation, so all
+	// setup happens in connectedCallback and window listeners are removed on disconnect.
 	class SiteSearch extends HTMLElement {
-		constructor() {
-			super();
+		#abort?: AbortController;
+
+		connectedCallback() {
+			this.#abort = new AbortController();
+			const { signal } = this.#abort;
 			const openBtn = this.querySelector<HTMLButtonElement>("button[data-open-modal]")!;
 			const closeBtn = this.querySelector<HTMLButtonElement>("button[data-close-modal]")!;
 			const dialog = this.querySelector("dialog")!;
@@ -77,7 +81,7 @@ import "@pagefind/default-ui/css/ui.css";
 				dialog.showModal();
 				this.querySelector("input")?.focus();
 				event?.stopPropagation();
-				window.addEventListener("click", onWindowClick);
+				window.addEventListener("click", onWindowClick, { signal });
 			};
 
 			const closeModal = () => {
@@ -90,26 +94,33 @@ import "@pagefind/default-ui/css/ui.css";
 			closeBtn.addEventListener("click", closeModal);
 
 			// Listen for `/` keyboard shortcut
-			window.addEventListener("keydown", (e) => {
-				if (e.key === "/" && !dialog.open) {
-					openModal();
-					e.preventDefault();
-				}
-			});
+			window.addEventListener(
+				"keydown",
+				(e) => {
+					if (e.key === "/" && !dialog.open) {
+						openModal();
+						e.preventDefault();
+					}
+				},
+				{ signal },
+			);
 
-			window.addEventListener("DOMContentLoaded", () => {
-				if (import.meta.env.DEV) return;
-				const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-				onIdle(async () => {
-					const { PagefindUI } = await import("@pagefind/default-ui");
-					new PagefindUI({
-						element: "#cactus__search",
-						baseUrl: import.meta.env.BASE_URL,
-						bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
-						showImages: false,
-					});
+			if (import.meta.env.DEV) return;
+			const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+			onIdle(async () => {
+				if (signal.aborted) return;
+				const { PagefindUI } = await import("@pagefind/default-ui");
+				new PagefindUI({
+					element: this.querySelector("#cactus__search"),
+					baseUrl: import.meta.env.BASE_URL,
+					bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
+					showImages: false,
 				});
 			});
+		}
+
+		disconnectedCallback() {
+			this.#abort?.abort();
 		}
 	}
 

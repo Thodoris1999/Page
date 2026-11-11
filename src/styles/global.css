@@ -1,8 +1,25 @@
 @import "tailwindcss";
-@config "../../tailwind.config.ts";
+@plugin "@tailwindcss/typography";
 
 /* Dark mode is toggled with a `dark` class on <html> (see ThemeProvider/ThemeToggle) */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Site colours. The `--theme-*` variables hold RGB triplets that switch with the
+  `dark` class (below); these theme entries expose them as Tailwind colours,
+  e.g. `bg-bgColor`, `text-accent`, `bg-quote/10`.
+*/
+@theme inline {
+	--color-bgColor: rgb(var(--theme-bg));
+	--color-textColor: rgb(var(--theme-text));
+	--color-link: rgb(var(--theme-link));
+	--color-accent: rgb(var(--theme-accent));
+	--color-accent-2: rgb(var(--theme-accent-2));
+	--color-quote: rgb(var(--theme-quote));
+
+	/* Roboto Mono from the Astro Fonts API (astro.config.ts), also used by the OG images */
+	--font-mono: var(--font-roboto-mono);
+}
 
 /*
   Tailwind v4 changed the default border and ring colors to `currentcolor`.
@@ -27,6 +44,20 @@
 		--theme-accent: 204 42 66;
 		--theme-accent-2: 17 17 17;
 		--theme-quote: 204 42 66;
+
+		/* Underline drawn by `.cactus-link` and links inside posts */
+		--link-underline: linear-gradient(
+			transparent,
+			transparent 5px,
+			rgb(var(--theme-text)) 5px,
+			rgb(var(--theme-text))
+		);
+		--link-underline-hover: linear-gradient(
+			transparent,
+			transparent 4px,
+			rgb(var(--theme-link)) 4px,
+			rgb(var(--theme-link))
+		);
 	}
 
 	:root.dark {
@@ -45,5 +76,113 @@
 
 	html body {
 		@apply mx-auto flex h-full max-w-5xl flex-col bg-bgColor px-8 pt-16 font-mono text-sm font-normal text-textColor antialiased;
+	}
+}
+
+@utility cactus-link {
+	background-size: 100% 6px;
+	background-position: bottom;
+	background-repeat: repeat-x;
+	background-image: var(--link-underline);
+
+	&:hover {
+		background-image: var(--link-underline-hover);
+	}
+}
+
+@utility title {
+	@apply text-2xl font-semibold text-accent-2;
+}
+
+/*
+  Post typography (`prose` from @tailwindcss/typography).
+  These rules are intentionally unlayered so they take precedence over the
+  plugin's own (layered) prose styles. The `:where(...)` selectors mirror the
+  plugin's, so `not-prose` still opts an element out.
+*/
+.prose-cactus {
+	--tw-prose-body: rgb(var(--theme-text));
+	--tw-prose-headings: rgb(var(--theme-accent-2));
+	--tw-prose-links: rgb(var(--theme-text));
+	--tw-prose-bold: rgb(var(--theme-text));
+	--tw-prose-bullets: rgb(var(--theme-text));
+	--tw-prose-quotes: rgb(var(--theme-quote));
+	--tw-prose-code: rgb(var(--theme-text));
+	--tw-prose-hr: 0.5px dashed #666;
+	--tw-prose-th-borders: #666;
+}
+
+.prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	text-decoration: none;
+	background-size: 100% 6px;
+	background-position: bottom;
+	background-repeat: repeat-x;
+	background-image: var(--link-underline);
+
+	&:hover {
+		background-image: var(--link-underline-hover);
+	}
+}
+
+.prose :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	font-weight: 700;
+}
+
+/* Inline code only; code blocks (`pre > code`) keep the plugin's borderless style */
+.prose :where(:not(pre) > code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border: 1px dotted #666;
+	border-radius: 2px;
+}
+
+.prose-sm :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	font-size: var(--text-sm);
+	font-weight: 400;
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border-left-width: 0;
+}
+
+.prose :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border-top-style: dashed;
+}
+
+.prose :where(thead):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border-bottom-width: 0;
+}
+
+.prose :where(thead th):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	font-weight: 700;
+	border-bottom: 1px dashed #666;
+}
+
+.prose :where(tbody tr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border-bottom-width: 0;
+}
+
+.prose :where(tfoot):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	border-top: 1px dashed #666;
+}
+
+/* Footnote references, e.g. [1] */
+.prose :where(sup):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+	margin-inline-start: 0.125rem;
+
+	& a {
+		background-image: none;
+
+		&:hover {
+			color: rgb(var(--theme-link));
+			text-decoration: none;
+			background-image: none;
+		}
+
+		&::before {
+			content: "[";
+		}
+
+		&::after {
+			content: "]";
+		}
 	}
 }

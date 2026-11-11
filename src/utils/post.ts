@@ -27,3 +27,12 @@ export function getUniqueTagsWithCount(posts: CollectionEntry<"post">[] = []): {
 		return runningTags;
 	}, {});
 }
+
+/** URL-safe slug for a tag, e.g. "game engine" -> "game-engine" */
+export function getTagSlug(tag: string) {
+	return tag
+		.toLowerCase()
+		.trim()
+		.replace(/[^\p{L}\p{N}]+/gu, "-")
+		.replace(/^-+|-+$/g, "");
+}

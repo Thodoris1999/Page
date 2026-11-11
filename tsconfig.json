@@ -4,7 +4,6 @@
 		"baseUrl": ".",
 		"verbatimModuleSyntax": true,
 		"paths": {
-			"~/*": ["src/*"],
 			"@/components/*": ["src/components/*.astro"],
 			"@/layouts/*": ["src/layouts/*.astro"],
 			"@/utils": ["src/utils/index.ts"],

@@ -1,7 +1,7 @@
 {
-	"name": "astro-cactus",
-	"version": "2.8.2",
-	"private": false,
+	"name": "tyrovouzis-dev",
+	"version": "1.0.0",
+	"private": true,
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
@@ -11,7 +11,8 @@
 		"postbuild": "pagefind --site dist",
 		"preview": "astro preview",
 		"format": "prettier -w --cache .",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"format:check": "prettier --check ."
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.12",

@@ -1,21 +1,39 @@
-{/* Inlined to avoid FOUC. */}
-<script is:inline>
-	const root = document.documentElement;
-	const colorThemeMetaTag = document.querySelector("meta[name='theme-color']");
-	const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
-	const userTheme =
-		storedTheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-	function setTheme(theme) {
-		root.classList.toggle("dark", theme === "dark");
-		const bgColour = getComputedStyle(document.body).getPropertyValue("--theme-bg");
+{/* Inlined to avoid FOUC. Re-runs after every client-side navigation (ClientRouter). */}
+<script is:inline data-astro-rerun>
+	(() => {
+		const root = document.documentElement;
 
-		colorThemeMetaTag.setAttribute("content", `rgb(${bgColour})`);
-		if (typeof localStorage !== "undefined") {
-			localStorage.setItem("theme", theme);
+		function getTheme() {
+			const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
+			return (
+				storedTheme ||
+				(window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+			);
 		}
-	}
-	setTheme(userTheme);
-	root.addEventListener("theme-change", (e) => {
-		setTheme(e.detail.theme);
-	});
+
+		function setTheme(theme) {
+			root.classList.toggle("dark", theme === "dark");
+			const bgColour = getComputedStyle(document.body).getPropertyValue("--theme-bg");
+			document
+				.querySelector("meta[name='theme-color']")
+				?.setAttribute("content", `rgb(${bgColour})`);
+			if (typeof localStorage !== "undefined") {
+				localStorage.setItem("theme", theme);
+			}
+		}
+
+		setTheme(getTheme());
+
+		// Register document-level listeners only once per full page load
+		if (window.__themeProviderInit) return;
+		window.__themeProviderInit = true;
+
+		root.addEventListener("theme-change", (e) => {
+			setTheme(e.detail.theme);
+		});
+		// Apply the theme to the incoming page before it is swapped in, so it never flashes light
+		document.addEventListener("astro:before-swap", (e) => {
+			e.newDocument.documentElement.classList.toggle("dark", getTheme() === "dark");
+		});
+	})();
 </script>
