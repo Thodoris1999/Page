@@ -10,8 +10,5 @@
 		// /posts/foo -> posts/foo/index.html
 		"html_handling": "auto-trailing-slash",
 	},
-	"routes": [
-		{ "pattern": "tyrovouzis.dev", "custom_domain": true },
-		{ "pattern": "www.tyrovouzis.dev", "custom_domain": true },
-	],
+	"workers_dev": false,
 }
