@@ -1,22 +1,17 @@
+// Loaded from src/styles/global.css via `@config` (Tailwind v4 JS config compatibility)
 import type { Config } from "tailwindcss";
-import { fontFamily } from "tailwindcss/defaultTheme";
-import plugin from "tailwindcss/plugin";
+import defaultTheme from "tailwindcss/defaultTheme";
+import plugin, { type PluginUtils } from "tailwindcss/plugin";
+import typography from "@tailwindcss/typography";
+
+// Underline gradients shared by `.cactus-link` and prose links
+const linkUnderline =
+	"linear-gradient(transparent,transparent 5px,rgb(var(--theme-text)) 5px,rgb(var(--theme-text)))";
+const linkUnderlineHover =
+	"linear-gradient(transparent,transparent 4px,rgb(var(--theme-link)) 4px,rgb(var(--theme-link)))";
 
 export default {
-	content: ["./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}"],
-	darkMode: "class",
-	corePlugins: {
-		// disable aspect ratio as per docs -> @tailwindcss/aspect-ratio
-		aspectRatio: false,
-		// disable some core plugins as they are included in the css, even when unused
-		touchAction: false,
-		ringOffsetWidth: false,
-		ringOffsetColor: false,
-		scrollSnapType: false,
-		borderOpacity: false,
-		textOpacity: false,
-		fontVariantNumeric: false,
-	},
+	content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
 	theme: {
 		extend: {
 			colors: {
@@ -29,16 +24,13 @@ export default {
 			},
 			fontFamily: {
 				// Add any custom fonts here
-				sans: [...fontFamily.sans],
-				serif: [...fontFamily.serif],
+				sans: [...defaultTheme.fontFamily.sans],
+				serif: [...defaultTheme.fontFamily.serif],
 			},
 			transitionProperty: {
 				height: "height",
 			},
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			// Remove above once tailwindcss exposes theme type
-			typography: (theme) => ({
+			typography: ({ theme }: PluginUtils) => ({
 				cactus: {
 					css: {
 						"--tw-prose-body": theme("colors.textColor / 1"),
@@ -54,8 +46,16 @@ export default {
 				},
 				DEFAULT: {
 					css: {
+						// Same look as `.cactus-link` (Tailwind v4 doesn't support @apply inside plugin config)
 						a: {
-							"@apply cactus-link no-underline": "",
+							textDecoration: "none",
+							backgroundSize: "100% 6px",
+							backgroundPosition: "bottom",
+							backgroundRepeat: "repeat-x",
+							backgroundImage: linkUnderline,
+							"&:hover": {
+								backgroundImage: linkUnderlineHover,
+							},
 						},
 						strong: {
 							fontWeight: "700",
@@ -84,11 +84,13 @@ export default {
 							borderTop: "1px dashed #666",
 						},
 						sup: {
-							"@apply ms-0.5": "",
+							marginInlineStart: "0.125rem",
 							a: {
-								"@apply bg-none": "",
+								backgroundImage: "none",
 								"&:hover": {
-									"@apply text-link no-underline bg-none": "",
+									color: "rgb(var(--theme-link))",
+									textDecoration: "none",
+									backgroundImage: "none",
 								},
 								"&:before": {
 									content: "'['",
@@ -112,17 +114,14 @@ export default {
 		},
 	},
 	plugins: [
-		require("@tailwindcss/typography"),
-		require("@tailwindcss/aspect-ratio"),
+		typography,
 		plugin(function ({ addComponents }) {
 			addComponents({
 				".cactus-link": {
 					"@apply bg-[size:100%_6px] bg-bottom bg-repeat-x": {},
-					backgroundImage:
-						"linear-gradient(transparent,transparent 5px,rgb(var(--theme-text)) 5px,rgb(var(--theme-text)))",
+					backgroundImage: linkUnderline,
 					"&:hover": {
-						backgroundImage:
-							"linear-gradient(transparent,transparent 4px,rgb(var(--theme-link)) 4px,rgb(var(--theme-link)))",
+						backgroundImage: linkUnderlineHover,
 					},
 				},
 				".title": {

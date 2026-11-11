@@ -26,13 +26,13 @@ Astro Theme Cactus is a simple opinionated starter built with the Astro framewor
 
 ## Demo 💻
 
-Check out the [Demo](https://astro-theme-cactus.netlify.app/), hosted on Netlify
+Check out the [Demo](https://astro-theme-cactus.netlify.app/) of the upstream theme
 
 ## Quick start
 
 [Create a new repo](https://github.com/chrismwilliams/astro-theme-cactus/generate) from this template.
 
-[![Deploy with Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/chrismwilliams/astro-theme-cactus) [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fchrismwilliams%2Fastro-theme-cactus&project-name=astro-theme-cactus)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fchrismwilliams%2Fastro-theme-cactus&project-name=astro-theme-cactus)
 
 ## Preview
 
@@ -42,16 +42,16 @@ Check out the [Demo](https://astro-theme-cactus.netlify.app/), hosted on Netlify
 
 ## Commands
 
-Replace pnpm with your choice of npm / yarn
-
-| Command          | Action                                                         |
-| :--------------- | :------------------------------------------------------------- |
-| `pnpm install`   | Installs dependencies                                          |
-| `pnpm dev`       | Starts local dev server at `localhost:3000`                    |
-| `pnpm build`     | Build your production site to `./dist/`                        |
-| `pnpm postbuild` | Pagefind script to build the static search of your blog posts  |
-| `pnpm preview`   | Preview your build locally, before deploying                   |
-| `pnpm sync`      | Generate types based on your config in `src/content/config.ts` |
+| Command             | Action                                                        |
+| :------------------ | :------------------------------------------------------------ |
+| `npm install`       | Installs dependencies                                         |
+| `npm run dev`       | Starts local dev server at `localhost:4321`                   |
+| `npm run build`     | Build your production site to `./dist/` (runs Pagefind after) |
+| `npm run preview`   | Preview your build locally, before deploying                  |
+| `npm run sync`      | Generate types based on your config in `src/content.config.ts` |
+| `npm run check`     | Type-check the project                                        |
+| `npm run lint`      | Lint with ESLint                                              |
+| `npm run format`    | Format with Prettier                                          |
 
 ## Configure
 
@@ -73,7 +73,7 @@ Replace pnpm with your choice of npm / yarn
 
 ## Adding posts
 
-This theme utilises [Content Collections](https://docs.astro.build/en/guides/content-collections/) to organise Markdown and/or MDX files, as well as type-checking frontmatter with a schema -> `src/content/config.ts`.
+This theme utilises [Content Collections](https://docs.astro.build/en/guides/content-collections/) to organise Markdown and/or MDX files, as well as type-checking frontmatter with a schema -> `src/content.config.ts`.
 
 Adding a post is as simple as adding your .md(x) files to the `src/content/post` folder, the filename of which will be used as the slug/url. The posts included with this template are there as an example of how to structure your frontmatter. Additionally, the [Astro docs](https://docs.astro.build/en/guides/markdown-content/) has a detailed section on markdown pages.
 
@@ -81,7 +81,7 @@ Adding a post is as simple as adding your .md(x) files to the `src/content/post`
 
 | Property (\* required) | Description                                                                                                                                                                                                                                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| title \*               | Self explanatory. Used as the text link to the post, the h1 on the posts' page, and the pages title property. Has a max length of 60 chars, set in `src/content/config.ts`                                                                                                                        |
+| title \*               | Self explanatory. Used as the text link to the post, the h1 on the posts' page, and the pages title property. Has a max length of 60 chars, set in `src/content.config.ts`                                                                                                                        |
 | description \*         | Similar to above, used as the seo description property. Has a min length of 50 and a max length of 160 chars, set in the post schema.                                                                                                                                                             |
 | publishDate \*         | Again pretty simple. To change the date format/locale, currently **en-GB**, update the date option in `src/site.config.ts`. Note you can also pass additional options to the component `<FormattedDate>` if required.                                                                             |
 | updatedDate            | This is an optional date representing when a post has been updated, in the same format as the publishDate. Note that by providing this field, the sorting function, found in `src/utils/post.ts`, `sortMDByDate` will order by this field rather than its published date.                         |
@@ -112,7 +112,7 @@ You may be asked to included a snippet inside the **HEAD** tag of your website w
 Another popular provider is google analytics which you could integrate via the above method, or, for example adding [astro-google-analytics](https://www.npmjs.com/package/astro-google-analytics)
 
 ```bash
-pnpm install astro-google-analytics
+npm install astro-google-analytics
 ```
 
 Edit `src/layouts/Base.astro`, and add:

@@ -1,6 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+/* Dark mode is toggled with a `dark` class on <html> (see ThemeProvider/ThemeToggle) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Tailwind v4 changed the default border and ring colors to `currentcolor`.
+  Restore the v3 defaults so borders without an explicit color look the same.
+*/
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
+	}
+}
 
 @layer base {
 	:root {
