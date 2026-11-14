@@ -18,7 +18,7 @@ For a long time I didn't consider this worthy of a blog post. We were fairly pro
 
 Even when given the same problems, engineers come up with very different strategies based on external circumstances that turn out to have just as important impact as the problem constraints themselves. For us, I recognise 3 external challengies that are unusual to bigger teams:
 
-1. No budget. All autonomous component systems have to come from from sponsorships. All costs including R&D came up to about 12k euros. This is compounded by the fact that (especially at the time) there was no high-tech industry in northern Greece which gives little motivation to companies to do sponsored promotions (Huge thanks to those that still helped us!!! I am still referencing your brand at any opportunity).
+1. No budget. All autonomous component systems have to come from sponsorships. All costs including R&D came up to about 12k euros. This is compounded by the fact that (especially at the time) there was no high-tech industry in northern Greece which gives little motivation to companies to do sponsored promotions (Huge thanks to those that still helped us!!! I am still referencing your brand at any opportunity).
 2. Low number of team members, 5 to be exact (with part time help from the electric vehicle team). This is for the entire car, so in practise for the autonomous system software a manpower of on average ~3 was available for the coding of the entire system.
 3. Lack of knowledge. As a newly independently formed driverless team, we did not have any connections to the (anyways scarce) experienced university faculty or PhD students for consulting.
 
@@ -47,7 +47,7 @@ Here is admittedly the hardest part of the competition in terms of the autonomou
 
 Now I cannot say it is impossible to go with the modeled/optimization route. MPC methods do not necessarily require perfect dynamic modeling and there are ways to deal with runtime parameter adaptation to an extent. But the implementation complexity and required test track hours for the method to reach a beneficial stage was out of our budget.
 
-Instead, we went for the simple pure pursuit with dynamic lookahead point steering control + PID velocity control. Both are very straightforward to tune having 3 or 4 highly relevant parameters, which gave us a very good idea on how to tune the controller after seeing the competition track.It worked out okay for us up to 35kmh, althout higher velocities was also made difficult by the rear-only braking causing the car to drift when decelerating too fast on turns. So I am not sure if that was the bottleneck. For path planning, delauney triangulation of the boundary cones + linearly interpolating a path over the track middle points never betrayed us.
+Instead, we went for the simple pure pursuit with dynamic lookahead point steering control + PID velocity control. Both are very straightforward to tune having 3 or 4 highly relevant parameters, which gave us a very good idea on how to tune the controller after seeing the competition track. It worked out okay for us up to 35kmh, althout higher velocities was also made difficult by the rear-only braking causing the car to drift when decelerating too fast on turns. So I am not sure if that was the bottleneck. For path planning, delauney triangulation of the boundary cones + linearly interpolating a path over the track middle points never betrayed us.
 
 ## Vehicle state estimation and mapping
 
